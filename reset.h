@@ -12,5 +12,6 @@
 ssize_t write_string(int fd, const char *str);
 void execute_commands(char *commands);
 void execute_command(char *comd);
+char **tokenize_input(const char *input);
 
 #endif

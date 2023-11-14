@@ -75,57 +75,66 @@ void execute_command(char *comd)
 						perror("setenv error");
 					}
 				}
-			}
-		}
-		else if (strncmp(comd, "unsetenv", 8) == 0)
-		{
-			char *var = comd + 8;
-
-			if (var != NULL)
-			{
-				if (unsetenv(var) != 0)
+				else
 				{
-					perror("unsetenv error");
+					perror("getcwd error");
 				}
 			}
-			else
-			{
-				fprintf(stderr, "Usage: unsetenv VARIABLE\n");
-			}
 		}
-		if (small == -1)
+		else 
 		{
-			perror("fork error");
+			fprintf(stderr, "Usage: cd[DIRECTORY]\n");
 		}
-		else if (small == 0)
+	}
+	else if (strncmp(comd, "unsetenv", 8) == 0)
+	{
+		char *var = comd + 8;
+
+		if (var != NULL)
 		{
-			char **args = tokenize_input(comd);
-
-			execvp(args[0], args);
-
-			getenv("PATH");
-
-			if (path_env != NULL)
+			if (unsetenv(var) != 0)
 			{
-				char *path = strdup(path_env);
-				char *dr = strtok(path, ":");
-
-				while (dr != NULL)
-				{
-					snprintf(exec_path, 1024, "%s/%s", dr, args[0]);
-					execvp(exec_path, args);
-					dr = strtok(NULL, ":");
-				}
-				free(path);
+				perror("unsetenv error");
 			}
-			perror("execvp error");
-			_exit(EXIT_FAILURE);
 		}
 		else
 		{
-			int status;
-
-			waitpid(small, &status, 0);
+			fprintf(stderr, "Usage: unsetenv VARIABLE\n");
 		}
 	}
+	if (small == -1)
+	{
+		perror("fork error");
+	}
+	else if (small == 0)
+	{
+		char **args = tokenize_input(comd);
+
+		execvp(args[0], args);
+
+		getenv("PATH");
+
+		if (path_env != NULL)
+		{
+			char *path = strdup(path_env);
+			char *dr = strtok(path, ":");
+
+			while (dr != NULL)
+			{
+				snprintf(exec_path, 1024, "%s/%s", dr, args[0]);
+				execvp(exec_path, args);
+				dr = strtok(NULL, ":");
+			}
+			free(path);
+		}
+		perror("execvp error");
+		_exit(EXIT_FAILURE);
+	}
+	else
+	{
+		int status;
+
+		waitpid(small, &status, 0);
+	}
 }
+
